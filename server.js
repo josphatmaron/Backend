@@ -124,8 +124,24 @@ app.post('/resend-otp', async (req, res) => {
   }
 });
 
-// OTHER ROUTES (unchanged, for wallet, game sessions, etc.)
-// ... (your previous routes for wallet, games, transactions, bonuses, etc. remain here) ...
+// Update user balance
+app.patch('/users/:id/balance', async (req, res) => {
+  try {
+    const { balance } = req.body;
+    if (typeof balance !== 'number') {
+      return res.status(400).json({ error: 'Balance must be a number.' });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: { balance } },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    res.json({ message: 'Balance updated.', user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Example: Show all users (for admin/debug only)
 app.get('/users', async (req, res) => {
