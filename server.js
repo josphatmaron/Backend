@@ -2,7 +2,6 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require('express');
 const bcrypt = require('bcrypt');
-const twilio = require('twilio');
 const cors = require('cors');
 const app = express();
 
@@ -10,10 +9,6 @@ app.use(cors({
   origin: 'https://josphatmaron.github.io'
 }));
 app.use(express.json());
-
-// --- Twilio config (use your real credentials in .env) ---
-const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-const twilioFrom = process.env.TWILIO_PHONE;
 
 // MongoDB connection
 mongoose.connect(
@@ -66,16 +61,10 @@ app.post('/register', async (req, res) => {
 
     otpStore[phone] = { code, expiresAt, data: { username, email, phone, passwordHash } };
 
-    // Send SMS
-    await twilioClient.messages.create({
-      body: `Your Airpawa verification code is: ${code}`,
-      from: twilioFrom,
-      to: phone
-    });
-
-    res.json({ message: 'Verification code sent!' });
+    // For demo: Show code in response (remove in production!)
+    res.json({ message: 'Verification code generated!', code });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to send code. Please try again.' });
+    res.status(500).json({ error: 'Failed to generate code. Please try again.' });
   }
 });
 
@@ -127,13 +116,8 @@ app.post('/resend-otp', async (req, res) => {
     entry.code = code;
     entry.expiresAt = Date.now() + 5 * 60 * 1000;
 
-    await twilioClient.messages.create({
-      body: `Your Airpawa verification code is: ${code}`,
-      from: twilioFrom,
-      to: phone
-    });
-
-    res.json({ message: 'Verification code resent!' });
+    // For demo: Show code in response (remove in production!)
+    res.json({ message: 'Verification code resent!', code });
   } catch (err) {
     res.status(500).json({ error: 'Failed to resend code. Try again.' });
   }
