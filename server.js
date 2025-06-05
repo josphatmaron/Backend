@@ -36,14 +36,22 @@ app.get('/', (req, res) => res.send('Hello from Express and MongoDB!'));
 // User registration: immediate account creation, no verification code
 app.post('/register', async (req, res) => {
   try {
+    // Debug logging: see exactly what is received
+    console.log('Register request body:', req.body);
+
     const { phone, password, username, email } = req.body;
+    // Log each field for deeper debugging
+    console.log('Fields:', { phone, password, username, email });
+
     if (!phone || !password || !username || !email) {
+      console.log('Missing field:', { phone, password, username, email });
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
     // Password validation: at least 8 chars, at least one letter and one number
     const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password);
     if (!validPassword) {
+      console.log('Invalid password:', password);
       return res.status(400).json({
         error: 'Password must be at least 8 characters, include at least one letter and one number.'
       });
@@ -51,7 +59,10 @@ app.post('/register', async (req, res) => {
 
     // Check if phone or email already exists
     const exists = await User.findOne({ $or: [ { phone }, { email } ] });
-    if (exists) return res.status(400).json({ error: 'Phone or email already registered.' });
+    if (exists) {
+      console.log('Duplicate phone/email:', { phone, email });
+      return res.status(400).json({ error: 'Phone or email already registered.' });
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -64,8 +75,11 @@ app.post('/register', async (req, res) => {
       verified: true
     });
 
+    console.log('User created:', user);
+
     res.status(201).json({ message: 'Registration successful!', user });
   } catch (err) {
+    console.error('Register error:', err);
     res.status(500).json({ error: 'Failed to register. Please try again.' });
   }
 });
