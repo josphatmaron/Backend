@@ -5,9 +5,15 @@ const bcrypt = require('bcrypt');
 const cors = require('cors');
 const app = express();
 
+// --------- CORS MUST BE FIRST! ---------
 app.use(cors({
-  origin: 'https://josphatmaron.github.io'
+  origin: 'https://josphatmaron.github.io',
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
+
+// --------- THEN JSON BODY PARSER ---------
 app.use(express.json());
 
 // MongoDB connection
