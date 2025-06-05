@@ -61,7 +61,8 @@ app.post('/register', async (req, res) => {
 
     otpStore[phone] = { code, expiresAt, data: { username, email, phone, passwordHash } };
 
-    // For demo: Show code in response (remove in production!)
+    // For development/testing: return the code in the response
+    // In production, just use: res.json({ message: 'Verification code sent!' });
     res.json({ message: 'Verification code generated!', code });
   } catch (err) {
     res.status(500).json({ error: 'Failed to generate code. Please try again.' });
@@ -116,7 +117,7 @@ app.post('/resend-otp', async (req, res) => {
     entry.code = code;
     entry.expiresAt = Date.now() + 5 * 60 * 1000;
 
-    // For demo: Show code in response (remove in production!)
+    // For development/testing: return the code in the response
     res.json({ message: 'Verification code resent!', code });
   } catch (err) {
     res.status(500).json({ error: 'Failed to resend code. Try again.' });
