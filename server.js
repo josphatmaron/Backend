@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const twilio = require('twilio');
 const cors = require('cors');
 const app = express();
+
 app.use(cors({
   origin: 'https://josphatmaron.github.io'
 }));
@@ -45,6 +46,14 @@ app.post('/register', async (req, res) => {
   try {
     const { phone, password, username, email } = req.body;
     if (!phone || !password) return res.status(400).json({ error: 'Phone and password required.' });
+
+    // Password validation: at least 8 chars, at least one letter and one number
+    const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password);
+    if (!validPassword) {
+      return res.status(400).json({
+        error: 'Password must be at least 8 characters, include at least one letter and one number.'
+      });
+    }
 
     // Check if phone or email already exists
     const exists = await User.findOne({ phone });
