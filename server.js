@@ -74,13 +74,12 @@ app.post('/register', async (req, res) => {
 
     // Create user immediately and mark as verified
     const user = await User.create({
-      username,
-      email,
-      phone,
-      password: passwordHash,
-      verified: true
-    });
-
+  username,
+  email,
+  phone,
+  passwordHash,             // <-- This is correct
+  verified: true
+});
     console.log('User created:', user);
 
     res.status(201).json({ message: 'Registration successful!', user });
