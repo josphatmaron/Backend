@@ -6,12 +6,18 @@ const cors = require('cors');
 const app = express();
 
 // --------- CORS MUST BE FIRST! ---------
-app.use(cors({
+const corsOptions = {
   origin: 'https://josphatmaron.github.io',
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+// --------- Handle OPTIONS preflight requests ---------
+app.options('*', (req, res) => {
+  res.sendStatus(200);
+});
 
 // --------- THEN JSON BODY PARSER ---------
 app.use(express.json());
@@ -74,12 +80,12 @@ app.post('/register', async (req, res) => {
 
     // Create user immediately and mark as verified
     const user = await User.create({
-  username,
-  email,
-  phone,
-  passwordHash,             // <-- This is correct
-  verified: true
-});
+      username,
+      email,
+      phone,
+      passwordHash,             // <-- This is correct
+      verified: true
+    });
     console.log('User created:', user);
 
     res.status(201).json({ message: 'Registration successful!', user });
